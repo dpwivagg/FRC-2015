@@ -1,13 +1,13 @@
 #include "WPILib.h"
-#include "RobotMap.h"
 
 class Robot: public SampleRobot
 {
+	//Initialize all members
+
 	RobotDrive giantRobot;
 	Joystick stick_left;
 	Joystick stick_right;
 	Joystick gamepad;
-	CANTalon lift;
 	Talon arm_left;
 	Talon arm_right;
 	DigitalInput top_limit;
@@ -20,20 +20,20 @@ class Robot: public SampleRobot
 
 public:
 	Robot() :
+
+		//Instantiate all items from above
+
 		giantRobot(1,2,3,4),
 
 		stick_left(0),
 		stick_right(1),
 		gamepad(2),
 
-
-		lift(9),
 		arm_left(6),
 		arm_right(5),
 
 		top_limit(2),
 		bottom_limit(3),
-
 
 		autoLoopCounter(0)
 	{
@@ -54,7 +54,7 @@ public:
 	}
 
 	/**
-	 * Runs the motors with arcade steering.
+	 * Runs the motors with tank steering and raises/lowers the box lift
 	 */
 	void OperatorControl()
 	{
@@ -62,16 +62,22 @@ public:
 		while (IsOperatorControl() && IsEnabled())
 		{
 			while(1==1){
-			giantRobot.TankDrive(stick_left, stick_right); //tank drive
-			giantRobot.SetInvertedMotor(RobotDrive::kFrontRightMotor, true);
-			giantRobot.SetInvertedMotor(RobotDrive::kRearRightMotor, true);
-			giantRobot.SetInvertedMotor(RobotDrive::kFrontLeftMotor, true);
-			giantRobot.SetInvertedMotor(RobotDrive::kRearLeftMotor, true);
+				giantRobot.TankDrive(stick_left, stick_right); //tank drive using left and right joysticks
 
-			//arm_left.Set(gamepad.GetRawAxis(5));
-			//arm_left.Set(gamepad.GetRawAxis(5));
+				//Reverse all motors (they will drive backwards without this part)
 
+				giantRobot.SetInvertedMotor(RobotDrive::kFrontRightMotor, true);
+				giantRobot.SetInvertedMotor(RobotDrive::kRearRightMotor, true);
+				giantRobot.SetInvertedMotor(RobotDrive::kFrontLeftMotor, true);
+				giantRobot.SetInvertedMotor(RobotDrive::kRearLeftMotor, true);
 
+				/*
+				 * This loop controls the top limit switch.
+				 * If pressed, the limit switch reverses the direction of the
+				 * motors for 0.5 seconds to prevent the robot from falling
+				 * due to excessive force.  It then stops the motors to allow
+				 * the driver to regain control.
+				 */
 
 				if(top_limit.Get() == 0){
 					arm_left.Set(0.1);
@@ -81,16 +87,44 @@ public:
 					arm_right.Set(0);
 				}
 
+				/*
+				 * This loop controls the bottom limit switch.
+				 * When pressed, the limit switch will stop the motors completely
+				 * so that the winch does not reverse direction.
+				 * The driver can regain control of the robot when ready.
+				 */
+
 				if(bottom_limit.Get() == 1){
 					arm_left.Set(0);
 					arm_right.Set(0);
 					Wait(0.3);
+					arm_left.Set(gamepad.GetRawAxis(5) / 2);
+					arm_left.Set(gamepad.GetRawAxis(5) / 2);
 				}
+
+				/*
+				 * The else statement here ensures that the driver
+				 * can control the arm normally if neither limit switch
+				 * is pressed.
+				 * Motors will run at half speed.
+				 */
 
 				else{
 					arm_left.Set(gamepad.GetRawAxis(5) / 2);
 					arm_left.Set(gamepad.GetRawAxis(5) / 2);
 				}
+
+				/*
+				 * Prints out the battery voltage when button 11
+				 * is pressed on the right stick.
+				 */
+
+				if(stick_right.GetRawButton(11)){
+					float voltage = giantRobot.GetBatteryVoltage();
+					printf("------STATUS------\n");
+					printf("Battery Voltage: %f\n", voltage);
+				}
+
 			}
 
 
