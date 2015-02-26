@@ -40,6 +40,20 @@ public:
 		giantRobot.SetExpiration(0.1);
 	}
 
+	void printStatus()
+	{
+		// Get an instance of the driver station to use its API
+		DriverStation* ds = DriverStation::GetInstance();
+
+		// Get important variable data
+		float voltage = ds -> GetBatteryVoltage();
+
+		// Print the data
+		printf("=======STATUS=======\n");
+		printf("Battery Voltage: %f\n", voltage);
+	}
+
+
 	/**
 	 * Drive left & right motors for 2 seconds then stop
 	 */
@@ -52,6 +66,7 @@ public:
 			giantRobot.Drive(0.0, 0.0); 	// stop robot
 		}
 	}
+
 
 	/**
 	 * Runs the motors with tank steering and raises/lowers the box lift
@@ -120,18 +135,12 @@ public:
 				 */
 
 				if(stick_right.GetRawButton(11)){
-					float voltage = giantRobot.GetBatteryVoltage();
-					printf("------STATUS------\n");
-					printf("Battery Voltage: %f\n", voltage);
+					this->printStatus();
 				}
 
 			}
 
-
-
-
 			Wait(0.005);				// wait for a motor update time
-
 
 		}
 
