@@ -114,7 +114,7 @@ public:
 					arm_right.Set(0);
 					Wait(0.3);
 					arm_left.Set(gamepad.GetRawAxis(5) / 2);
-					arm_left.Set(gamepad.GetRawAxis(5) / 2);
+					arm_right.Set(gamepad.GetRawAxis(5) / 2);
 				}
 
 				/*
@@ -126,7 +126,7 @@ public:
 
 				else{
 					arm_left.Set(gamepad.GetRawAxis(5) / 2);
-					arm_left.Set(gamepad.GetRawAxis(5) / 2);
+					arm_right.Set(gamepad.GetRawAxis(5) / 2);
 				}
 
 				/*
